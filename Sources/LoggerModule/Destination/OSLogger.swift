@@ -19,8 +19,7 @@ final class OSLogger: LogDestination {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 let store = try OSLogStore(scope: .currentProcessIdentifier)
-                let date = Date.now.addingTimeInterval(-24 * 3600)
-                let position = store.position(date: date)
+                let position = store.position(timeIntervalSinceLatestBoot: .zero)
                 let data = try store
                     .getEntries(at: position)
                     .compactMap { $0 as? OSLogEntryLog }
