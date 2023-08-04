@@ -4,27 +4,47 @@ import Foundation
 public final class Logger {
     
     public var level: LogLevel
-    private let destination: LogDestination
     private let formatter: LogFormatter
+    private let destination: LogDestination
+    private let exporter: LogExporter
     
     public init(level: LogLevel, category: String) {
         self.level = level
         self.formatter = DefaultLogFormatter()
         self.destination = {
-            if #available(iOS 15, *) {
+            if #available(iOS 14, *) {
                 return OSLogger(category: category)
             } else {
                 return DepracatedLogger()
             }
          }()
+        self.exporter = {
+            if #available(iOS 15, *) {
+                return OSLogExporter()
+            } else {
+                return DeprecatedLogExporter()
+            }
+        }()
+    }
+    
+    public init(
+        level: LogLevel,
+        formatter: LogFormatter,
+        destination: LogDestination,
+        exporter: LogExporter
+    ) {
+        self.level = level
+        self.formatter = formatter
+        self.destination = destination
+        self.exporter = exporter
     }
     
     public func export(completion: @escaping (Result<Data, Error>) -> Void) {
-        destination.export(completion: completion)
+        exporter.export(completion: completion)
     }
     
     public func exportLogsAsString(completion: @escaping (Result<String, Error>) -> Void) {
-        destination.export { result in
+        exporter.export { result in
             switch result {
             case .success(let data):
                 

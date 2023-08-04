@@ -19,6 +19,5 @@ enum LogDestinationError: LocalizedError {
 }
 
 public protocol LogDestination {
-    func export(completion: @escaping (Result<Data, Error>) -> Void)
     func log(_ level: LogLevel, message: String)
 }
