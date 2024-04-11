@@ -1,7 +1,7 @@
 
 import Foundation
 
-public final class Logger {
+public class Logger {
     
     public var level: LogLevel
     private let formatter: LogFormatter
@@ -98,7 +98,7 @@ public final class Logger {
         log(level: .error, message: message, functionName: functionName, line: line, file: file)
     }
     
-    private func log(level: LogLevel, message: String, functionName: String, line: Int, file: String) {
+    public func log(level: LogLevel, message: String, functionName: String, line: Int, file: String) {
         guard level >= self.level else {
             return
         }
