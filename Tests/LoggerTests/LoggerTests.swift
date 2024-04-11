@@ -8,7 +8,7 @@ final class LoggerTests: XCTestCase {
         let logger = Logger(
             level: .debug,
             formatter: DefaultLogFormatter(),
-            destination: logDestination,
+            destinations: [logDestination],
             exporter: DeprecatedLogExporter()
         )
         logger.debug("debug log")

@@ -1,12 +1,12 @@
 
 import Foundation
 
-enum LogDestinationError: LocalizedError {
+public enum LogDestinationError: LocalizedError {
     case notImplemented
     case noLogsExtracted
     case logConversionToStringFailed
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .notImplemented:
             return "Log export not implemented"

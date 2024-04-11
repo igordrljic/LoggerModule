@@ -5,17 +5,17 @@ public class Logger {
     
     public var level: LogLevel
     private let formatter: LogFormatter
-    private let destination: LogDestination
+    private let destinations: [LogDestination]
     private let exporter: LogExporter
     
     public init(level: LogLevel, category: String) {
         self.level = level
         self.formatter = DefaultLogFormatter()
-        self.destination = {
+        self.destinations = {
             if #available(iOS 14, *) {
-                return OSLogger(category: category)
+                return [OSLogger(category: category)]
             } else {
-                return DepracatedLogger()
+                return [DepracatedLogger()]
             }
          }()
         self.exporter = {
@@ -30,12 +30,12 @@ public class Logger {
     public init(
         level: LogLevel,
         formatter: LogFormatter,
-        destination: LogDestination,
+        destinations: [LogDestination],
         exporter: LogExporter
     ) {
         self.level = level
         self.formatter = formatter
-        self.destination = destination
+        self.destinations = destinations
         self.exporter = exporter
     }
     
@@ -103,7 +103,15 @@ public class Logger {
             return
         }
         
-        let formatedMessage = formatter.format(level: level, message: message, functionName: functionName, line: line, file: file)
-        destination.log(level, message: formatedMessage)
+        let formatedMessage = formatter.format(
+            level: level,
+            message: message,
+            functionName: functionName,
+            line: line,
+            file: file
+        )
+        for destination in destinations {
+            destination.log(level, message: formatedMessage)
+        }
     }
 }
