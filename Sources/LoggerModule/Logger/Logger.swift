@@ -8,35 +8,30 @@ public class Logger {
     private let destinations: [LogDestination]
     private let exporter: LogExporter
     
-    public init(level: LogLevel, category: String) {
-        self.level = level
-        self.formatter = DefaultLogFormatter()
-        self.destinations = {
-            if #available(iOS 14, *) {
-                return [OSLogger(category: category)]
-            } else {
-                return [DepracatedLogger()]
-            }
-         }()
-        self.exporter = {
-            if #available(iOS 15, *) {
-                return OSLogExporter()
-            } else {
-                return DeprecatedLogExporter()
-            }
-        }()
+    public convenience init(
+        level: LogLevel,
+        category: String
+    ) {
+        self.init(
+            level: level,
+            category: category,
+            formatter: nil,
+            destinations: nil,
+            exporter: nil
+        )
     }
     
     public init(
         level: LogLevel,
-        formatter: LogFormatter,
-        destinations: [LogDestination],
-        exporter: LogExporter
+        category: String,
+        formatter: LogFormatter? = nil,
+        destinations: [LogDestination]? = nil,
+        exporter: LogExporter? = nil
     ) {
         self.level = level
-        self.formatter = formatter
-        self.destinations = destinations
-        self.exporter = exporter
+        self.formatter = formatter ?? Self.createDefaultLogFormatter()
+        self.destinations = destinations ?? Self.createDefaultLoggingDestinations(with: category)
+        self.exporter = exporter ?? Self.createDefaultLogExporter()
     }
     
     public func export(completion: @escaping (Result<Data, Error>) -> Void) {
@@ -112,6 +107,26 @@ public class Logger {
         )
         for destination in destinations {
             destination.log(level, message: formatedMessage)
+        }
+    }
+    
+    public static func createDefaultLogFormatter() -> LogFormatter {
+        return DefaultLogFormatter()
+    }
+    
+    public static func createDefaultLogExporter() -> LogExporter {
+        if #available(iOS 15, *) {
+            return OSLogExporter()
+        } else {
+            return DeprecatedLogExporter()
+        }
+    }
+    
+    public static func createDefaultLoggingDestinations(with category: String) -> [LogDestination] {
+        if #available(iOS 14, *) {
+            return [OSLogger(category: category)]
+        } else {
+            return [DepracatedLogger()]
         }
     }
 }
